@@ -1,0 +1,29 @@
+{
+    "project_info": {
+        "project_number": "132457910373",
+        "project_id": "dev-buddy-amera",
+        "storage_bucket": "dev-buddy-amera.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:132457910373:android:928185dcab4d1c0942b68c",
+                "android_client_info": {
+                    "package_name": "com.example.dev_buddy"
+                }
+            },
+            "oauth_client": [],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyAP5jL10WfZ17eBykxMmfRbKAciXLlWnX8"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": []
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}
