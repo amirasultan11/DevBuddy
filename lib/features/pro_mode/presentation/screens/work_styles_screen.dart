@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -26,8 +25,8 @@ class WorkStylesScreen extends StatelessWidget {
             center: Alignment.center,
             radius: 1.2,
             colors: [
-              Color(0xFF1E293B), // Lighter Navy Center
-              Color(0xFF020617), // Darkest Navy Edges
+              Color(0xFF1E293B),
+              Color(0xFF020617),
             ],
           ),
         ),
@@ -110,74 +109,56 @@ class WorkStylesScreen extends StatelessWidget {
     );
   }
 
+  /// Performance fix: BackdropFilter removed from list cards.
+  /// Replaced with a flat semi-transparent Container — visually near-identical
+  /// but renders without per-frame compositing overhead.
   Widget _buildWorkStyleCard(WorkStyleModel workStyle, bool isArabic) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.1),
-                  Colors.white.withValues(alpha: 0.05),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.2),
-                width: 1.5,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title & Description
-                Text(
-                  workStyle.title,
-                  style: GoogleFonts.cairo(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  workStyle.description,
-                  style: GoogleFonts.cairo(
-                    fontSize: 14,
-                    color: Colors.white70,
-                    height: 1.6,
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Salary Range
-                _buildSalarySection(workStyle, isArabic),
-
-                const SizedBox(height: 24),
-
-                // Personality Types
-                _buildPersonalitySection(workStyle, isArabic),
-
-                const SizedBox(height: 24),
-
-                // Pros & Cons
-                _buildProsConsSection(workStyle, isArabic),
-
-                const SizedBox(height: 24),
-
-                // Required Skills
-                _buildSkillsSection(workStyle, isArabic),
-              ],
-            ),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.15),
+            width: 1.5,
           ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title & Description
+            Text(
+              workStyle.title,
+              style: GoogleFonts.cairo(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              workStyle.description,
+              style: GoogleFonts.cairo(
+                fontSize: 14,
+                color: Colors.white70,
+                height: 1.6,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+            _buildSalarySection(workStyle, isArabic),
+
+            const SizedBox(height: 24),
+            _buildPersonalitySection(workStyle, isArabic),
+
+            const SizedBox(height: 24),
+            _buildProsConsSection(workStyle, isArabic),
+
+            const SizedBox(height: 24),
+            _buildSkillsSection(workStyle, isArabic),
+          ],
         ),
       ),
     );
@@ -189,7 +170,7 @@ class WorkStylesScreen extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(
+            const Icon(
               Icons.attach_money_rounded,
               color: Colors.greenAccent,
               size: 20,
@@ -218,7 +199,6 @@ class WorkStylesScreen extends StatelessWidget {
           ),
           child: Column(
             children: [
-              // Egypt Salary
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -246,7 +226,6 @@ class WorkStylesScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              // Global Salary
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

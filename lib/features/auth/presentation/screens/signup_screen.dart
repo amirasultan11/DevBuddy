@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
-import '../../../pro_mode/screens/pro_home_screen.dart';
+import '../../../pro_mode/presentation/screens/pro_home_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -84,12 +84,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     // حقل الاسم
                     TextFormField(
                       controller: _nameController,
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 16,
+                      ),
+                      cursorColor: Colors.black,
                       decoration: InputDecoration(
                         labelText: 'Full Name',
-                        prefixIcon: const Icon(Icons.person_outline),
+                        labelStyle: const TextStyle(color: Colors.black54),
+                        prefixIcon: const Icon(Icons.person_outline, color: Colors.black54),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        filled: true,
+                        fillColor: Colors.grey[200],
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -104,12 +112,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 16,
+                      ),
+                      cursorColor: Colors.black,
                       decoration: InputDecoration(
                         labelText: 'Email Address',
-                        prefixIcon: const Icon(Icons.email_outlined),
+                        labelStyle: const TextStyle(color: Colors.black54),
+                        prefixIcon: const Icon(Icons.email_outlined, color: Colors.black54),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        filled: true,
+                        fillColor: Colors.grey[200],
                       ),
                       validator: (value) {
                         if (value == null || !value.contains('@')) {
@@ -124,12 +140,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 16,
+                      ),
+                      cursorColor: Colors.black,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock_outline),
+                        labelStyle: const TextStyle(color: Colors.black54),
+                        prefixIcon: const Icon(Icons.lock_outline, color: Colors.black54),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        filled: true,
+                        fillColor: Colors.grey[200],
                       ),
                       validator: (value) {
                         if (value == null || value.length < 6) {

@@ -4,19 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../../core/theme/locale_provider.dart';
-import '../../../shared/widgets/glass_bottom_nav.dart';
-import '../presentation/cubit/gamification_cubit.dart';
-import '../presentation/cubit/gamification_state.dart';
-import '../presentation/cubit/roadmap_cubit.dart';
-import '../presentation/cubit/roadmap_state.dart';
-import '../data/datasources/dummy_data_source.dart';
-import '../presentation/screens/work_styles_screen.dart';
-import '../presentation/screens/resources_screen.dart';
-import '../presentation/screens/roadmap_screen.dart' as track_roadmap;
-import '../presentation/screens/mentorship_screen.dart';
-import '../../../../screens/roadmap_screen.dart';
-import '../../../../screens/profile_screen.dart';
+import '../../../../core/theme/locale_provider.dart';
+import '../../../../shared/widgets/animated_fade_slide.dart';
+import '../../../../shared/widgets/glass_bottom_nav.dart';
+import '../../../../shared/widgets/home_action_card.dart';
+import '../cubit/gamification_cubit.dart';
+import '../cubit/gamification_state.dart';
+import '../cubit/roadmap_cubit.dart';
+import '../cubit/roadmap_state.dart';
+import '../../data/datasources/dummy_data_source.dart';
+import 'work_styles_screen.dart';
+import 'resources_screen.dart';
+import 'roadmap_screen.dart' as track_roadmap;
+import 'mentorship_screen.dart';
+import 'ai_roadmap_screen.dart';
+import 'profile_screen.dart';
 
 /// ProHomeScreen - Smart Dashboard with Cubit Integration
 /// Displays personalized user data from GamificationCubit and RoadmapCubit
@@ -344,118 +346,21 @@ class _ProHomeScreenState extends State<ProHomeScreen>
   }
 
   Widget _buildAnimatedCard({required int delay, required Widget child}) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: Duration(milliseconds: 600 + (delay * 100)),
-      curve: Curves.easeOutCubic,
-      builder: (context, value, _) {
-        return Transform.translate(
-          offset: Offset(0, 30 * (1 - value)),
-          child: Opacity(opacity: value, child: child),
-        );
-      },
-    );
+    return AnimatedFadeSlide(delay: delay, child: child);
   }
 
   Widget _buildAIPathButton(BuildContext context, bool isArabic) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: GestureDetector(
-        onTap: () {
-          // Navigate to AI Roadmap Screen (Push)
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AIRoadmapScreen()),
-          );
-        },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.purpleAccent.withValues(alpha: 0.15),
-                    Colors.blueAccent.withValues(alpha: 0.08),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Colors.purpleAccent.withValues(alpha: 0.3),
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.purpleAccent.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.purpleAccent, Colors.blueAccent],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.purpleAccent.withValues(alpha: 0.3),
-                          blurRadius: 15,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.auto_awesome,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isArabic ? 'خارطة طريق ذكية AI' : 'AI Smart Roadmap',
-                          style: GoogleFonts.cairo(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          isArabic
-                              ? 'أنشئ خطة تعلمك مع Gemini'
-                              : 'Generate your plan with Gemini',
-                          style: GoogleFonts.cairo(
-                            fontSize: 13,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    isArabic ? Icons.arrow_back_ios : Icons.arrow_forward_ios,
-                    color: Colors.white70,
-                    size: 20,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+    return HomeActionCard(
+      title: isArabic ? 'خارطة طريق ذكية AI' : 'AI Smart Roadmap',
+      subtitle: isArabic
+          ? 'أنشئ خطة تعلمك مع Gemini'
+          : 'Generate your plan with Gemini',
+      icon: Icons.auto_awesome,
+      iconColors: const [Colors.purpleAccent, Colors.blueAccent],
+      isArabic: isArabic,
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AIRoadmapScreen()),
       ),
     );
   }
@@ -584,295 +489,49 @@ class _ProHomeScreenState extends State<ProHomeScreen>
   }
 
   Widget _buildCareerPathsButton(BuildContext context, bool isArabic) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const WorkStylesScreen()),
-          );
-        },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.15),
-                    Colors.white.withValues(alpha: 0.08),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.3),
-                  width: 1.5,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.purpleAccent.withValues(alpha: 0.4),
-                          Colors.indigoAccent.withValues(alpha: 0.3),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.purpleAccent.withValues(alpha: 0.3),
-                          blurRadius: 15,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.work_rounded,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isArabic ? 'المسارات المهنية' : 'Career Paths',
-                          style: GoogleFonts.cairo(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          isArabic
-                              ? 'اكتشف أسلوب العمل المناسب لك'
-                              : 'Discover your ideal work style',
-                          style: GoogleFonts.cairo(
-                            fontSize: 13,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    isArabic ? Icons.arrow_back_ios : Icons.arrow_forward_ios,
-                    color: Colors.white70,
-                    size: 20,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+    return HomeActionCard(
+      title: isArabic ? 'المسارات المهنية' : 'Career Paths',
+      subtitle: isArabic
+          ? 'اكتشف أسلوب العمل المناسب لك'
+          : 'Discover your ideal work style',
+      icon: Icons.work_rounded,
+      iconColors: [Colors.purpleAccent.withValues(alpha: 0.8), Colors.indigoAccent],
+      isArabic: isArabic,
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const WorkStylesScreen()),
       ),
     );
   }
 
   Widget _buildResourcesButton(BuildContext context, bool isArabic) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ResourcesScreen()),
-          );
-        },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.15),
-                    Colors.white.withValues(alpha: 0.08),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.3),
-                  width: 1.5,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.cyanAccent.withValues(alpha: 0.4),
-                          Colors.blueAccent.withValues(alpha: 0.3),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.cyanAccent.withValues(alpha: 0.3),
-                          blurRadius: 15,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.library_books_rounded,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isArabic ? 'مركز الموارد' : 'Resources Hub',
-                          style: GoogleFonts.cairo(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          isArabic
-                              ? 'منصات، كتب، أدوات ومسابقات'
-                              : 'Platforms, books, tools & contests',
-                          style: GoogleFonts.cairo(
-                            fontSize: 13,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    isArabic ? Icons.arrow_back_ios : Icons.arrow_forward_ios,
-                    color: Colors.white70,
-                    size: 20,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+    return HomeActionCard(
+      title: isArabic ? 'مركز الموارد' : 'Resources Hub',
+      subtitle: isArabic
+          ? 'منصات، كتب، أدوات ومسابقات'
+          : 'Platforms, books, tools & contests',
+      icon: Icons.library_books_rounded,
+      iconColors: [Colors.cyanAccent.withValues(alpha: 0.8), Colors.blueAccent],
+      isArabic: isArabic,
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ResourcesScreen()),
       ),
     );
   }
 
   Widget _buildMentorsButton(BuildContext context, bool isArabic) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const MentorshipScreen()),
-          );
-        },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.15),
-                    Colors.white.withValues(alpha: 0.08),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.3),
-                  width: 1.5,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.purpleAccent.withValues(alpha: 0.4),
-                          Colors.pinkAccent.withValues(alpha: 0.3),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.purpleAccent.withValues(alpha: 0.3),
-                          blurRadius: 15,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.people_rounded,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isArabic ? 'مركز الإرشاد' : 'Mentorship Hub',
-                          style: GoogleFonts.cairo(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          isArabic
-                              ? 'احجز جلسة مع خبراء الصناعة'
-                              : 'Book sessions with experts',
-                          style: GoogleFonts.cairo(
-                            fontSize: 13,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    isArabic ? Icons.arrow_back_ios : Icons.arrow_forward_ios,
-                    color: Colors.white70,
-                    size: 20,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+    return HomeActionCard(
+      title: isArabic ? 'مركز الإرشاد' : 'Mentorship Hub',
+      subtitle: isArabic
+          ? 'احجز جلسة مع خبراء الصناعة'
+          : 'Book sessions with experts',
+      icon: Icons.people_rounded,
+      iconColors: [Colors.purpleAccent.withValues(alpha: 0.8), Colors.pinkAccent],
+      isArabic: isArabic,
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const MentorshipScreen()),
       ),
     );
   }

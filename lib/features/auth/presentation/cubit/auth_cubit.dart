@@ -64,6 +64,24 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Sign in anonymously as a Guest.
+  /// Emits [AuthLoading] then [Authenticated] with a guest profile,
+  /// or [AuthError] if Firebase Anonymous Auth is unavailable.
+  Future<void> signInAnonymously() async {
+    try {
+      emit(const AuthLoading());
+
+      final user = await _repository.signInAnonymously();
+
+      emit(Authenticated(user));
+    } on Exception catch (e) {
+      final errorMessage = e.toString().replaceFirst('Exception: ', '');
+      emit(AuthError(errorMessage));
+    } catch (e) {
+      emit(const AuthError('An unexpected error occurred'));
+    }
+  }
+
   /// Logout user
   Future<void> logout() async {
     try {

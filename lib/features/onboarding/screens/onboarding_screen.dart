@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_mode_provider.dart';
 import '../../../core/theme/locale_provider.dart';
-import '../../auth/screens/auth_screen.dart';
+import '../../auth/presentation/screens/auth_screen.dart';
 
 // 1. The Content Model
 class OnboardingContent {

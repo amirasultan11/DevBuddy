@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
-import '../../../pro_mode/screens/pro_home_screen.dart';
+import '../../../pro_mode/presentation/screens/pro_home_screen.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -31,10 +31,12 @@ class _LoginScreenState extends State<LoginScreen> {
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
-            // Navigate to Pro Mode on success
-            Navigator.pushReplacement(
+            // STRICT NAVIGATION: Clear the entire back-stack.
+            // The user must NEVER be able to swipe back to onboarding or login.
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (_) => const ProHomeScreen()),
+              (route) => false,
             );
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -43,12 +45,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   state.message,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                backgroundColor: Colors.redAccent, // High visibility error
+                backgroundColor: Colors.redAccent,
               ),
             );
           }
         },
         builder: (context, state) {
+          // Derive the loading flag once for clean reuse below
+          final isLoading = state is AuthLoading;
+
           return SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -67,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87, // High contrast text
+                          color: Colors.black87,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -84,7 +89,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 48),
 
                       // --- Email Input ---
-                      // Explicit Label for accessibility and clarity
                       const Text(
                         'Email Address',
                         style: TextStyle(
@@ -97,25 +101,25 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
-                        // Force high-contrast text style to prevent invisible text
+                        // Explicit text style prevents invisible-text on white background
                         style: const TextStyle(
                           color: Colors.black87,
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
-                        cursorColor: Colors.black, // Visible cursor
+                        cursorColor: Colors.black,
                         decoration: InputDecoration(
                           hintText: 'Enter your email',
                           hintStyle: TextStyle(color: Colors.grey[600]),
                           filled: true,
-                          fillColor: Colors.grey[200], // Distinct background
+                          fillColor: Colors.grey[200],
                           prefixIcon: const Icon(
                             Icons.email_outlined,
                             color: Colors.black54,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none, // Clean look
+                            borderSide: BorderSide.none,
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -191,15 +195,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 40),
 
-                      // --- Login Button ---
+                      // --- Primary Login Button ---
                       SizedBox(
-                        height: 56, // Larger touch target
-                        width: double.infinity, // Full width
+                        height: 56,
+                        width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: state is AuthLoading
+                          // Disable during loading to prevent double-submits
+                          onPressed: isLoading
                               ? null
                               : () {
                                   if (_formKey.currentState!.validate()) {
+                                    // Route through cubit — never call Navigator directly here
                                     context.read<AuthCubit>().signIn(
                                       _emailController.text.trim(),
                                       _passwordController.text.trim(),
@@ -214,10 +220,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child: state is AuthLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
+                          child: isLoading
+                              ? const CircularProgressIndicator(color: Colors.white)
                               : const Text(
                                   'Login',
                                   style: TextStyle(
@@ -227,18 +231,55 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                         ),
                       ),
+                      const SizedBox(height: 16),
+
+                      // --- Guest / Anonymous Login Button ---
+                      // Triggers Firebase Anonymous Auth via AuthCubit.signInAnonymously().
+                      // Navigation to ProHomeScreen happens in the BlocConsumer listener
+                      // above when the Authenticated state is emitted — NOT here.
+                      SizedBox(
+                        height: 56,
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  context.read<AuthCubit>().signInAnonymously();
+                                },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.indigo, width: 2),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: isLoading
+                              ? const CircularProgressIndicator(color: Colors.indigo)
+                              : const Text(
+                                  'Continue as Guest',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.indigo,
+                                  ),
+                                ),
+                        ),
+                      ),
                       const SizedBox(height: 24),
 
-                      // --- Sign Up Link ---
+                      // --- Navigate to Sign Up ---
+                      // Navigator.push here is intentional: we are just navigating
+                      // between auth screens, not completing authentication.
                       TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SignUpScreen(),
-                            ),
-                          );
-                        },
+                        onPressed: isLoading
+                            ? null
+                            : () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const SignUpScreen(),
+                                  ),
+                                );
+                              },
                         child: RichText(
                           text: const TextSpan(
                             text: 'Don\'t have an account? ',

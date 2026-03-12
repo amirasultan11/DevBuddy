@@ -2,11 +2,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../features/auth/presentation/cubit/auth_cubit.dart';
-import '../features/auth/presentation/cubit/auth_state.dart';
-import '../features/auth/data/models/user_profile_model.dart';
+import '../../../../features/auth/presentation/cubit/auth_cubit.dart';
+import '../../../../features/auth/presentation/cubit/auth_state.dart';
+import '../../../../features/auth/data/models/user_profile_model.dart';
 
-import '../features/onboarding/screens/language_selection_screen.dart';
+import '../../../../features/onboarding/screens/language_selection_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

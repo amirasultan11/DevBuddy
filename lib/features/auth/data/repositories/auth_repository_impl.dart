@@ -41,6 +41,15 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<UserProfileModel> signInAnonymously() async {
+    try {
+      return await remoteDataSource.signInAnonymously();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> logout() async {
     try {
       await remoteDataSource.logout();

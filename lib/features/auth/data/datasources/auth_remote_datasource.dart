@@ -141,6 +141,64 @@ class AuthRemoteDataSource {
     }
   }
 
+  /// Sign in anonymously as a Guest.
+  /// Creates a Firebase anonymous session and a matching guest [UserProfileModel]
+  /// in Firestore so that data (progress, streaks, etc.) can be migrated later
+  /// if the user decides to create a full account.
+  Future<UserProfileModel> signInAnonymously() async {
+    try {
+      // Step 1: Create an anonymous Firebase Auth session
+      final userCredential = await _firebaseAuth.signInAnonymously();
+      final user = userCredential.user;
+
+      if (user == null) {
+        throw Exception('Failed to sign in anonymously');
+      }
+
+      // Step 2: Build a default guest profile.
+      // The email uses a short UID prefix to keep it unique yet readable.
+      final guestProfile = UserProfileModel(
+        uid: user.uid,
+        name: 'Guest Explorer',
+        email: 'guest_${user.uid.substring(0, 5)}@devbuddy.app',
+        personalityType: 'Unknown',
+        currentStreak: 0,
+        longestStreak: 0,
+        totalPoints: 0,
+        level: 1,
+        completedTracks: const [],
+        enrolledTracks: const [],
+        avatar: '👤',
+        createdAt: DateTime.now(),
+        lastLoginAt: DateTime.now(),
+        isKidsMode: false,
+        preferredLanguage: 'en',
+        badges: const [],
+        learningStats: const LearningStats(
+          totalHours: 0,
+          completedLessons: 0,
+          completedQuizzes: 0,
+          completedProjects: 0,
+          avgQuizScore: 0,
+        ),
+        unlockedKidsLevel: 1,
+      );
+
+      // Step 3: Persist the guest profile to Firestore.
+      // Using set() with merge:false ensures a clean document on first creation.
+      await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .set(guestProfile.toJson());
+
+      return guestProfile;
+    } on FirebaseAuthException catch (e) {
+      throw Exception('Anonymous sign-in failed: ${e.message}');
+    } catch (e) {
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
+
   /// Sign out the current user
   Future<void> logout() async {
     try {

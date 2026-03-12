@@ -21,9 +21,10 @@ Future<void> initHive() async {
 
   // Open boxes used by Cubits
   // These boxes will be used for persistent storage
-  await Hive.openBox('auth'); // Used by AuthCubit
+  await Hive.openBox('auth');        // Used by AuthCubit
   await Hive.openBox('gamification'); // Used by GamificationCubit
-  await Hive.openBox('settings'); // For future use
+  await Hive.openBox('roadmaps');    // Used by RoadmapCubit for step persistence
+  await Hive.openBox('settings');    // For future use
 }
 
 void main() async {
@@ -48,7 +49,11 @@ class MyApp extends StatelessWidget {
       providers: [
         // Cubit Providers
         BlocProvider(create: (_) => GamificationCubit()),
-        BlocProvider(create: (_) => RoadmapCubit()),
+        // Inject the already-opened 'roadmaps' Hive box so RoadmapCubit
+        // can persist step progress locally without any network calls.
+        BlocProvider(
+          create: (_) => RoadmapCubit(box: Hive.box('roadmaps')),
+        ),
         BlocProvider(
           create: (_) => AuthCubit(
             repository: AuthRepositoryImpl(

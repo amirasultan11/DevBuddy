@@ -43,3 +43,17 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# ─── SECRETS — Never commit these to a public repo ────────────────────────────
+# Firebase config files contain API keys and project identifiers
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
+
+# Environment variable files
+.env
+.env.*
+*.env
+
+# Dart-define secrets file (if you use a local secrets.dart)
+lib/core/secrets.dart

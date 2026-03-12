@@ -9,9 +9,14 @@ abstract class AuthRepository {
   /// Sign up with email, password, and name
   Future<UserProfileModel> signUp(String name, String email, String password);
 
+  /// Sign in anonymously as a Guest.
+  /// Creates a Firebase anonymous session and a local guest profile.
+  Future<UserProfileModel> signInAnonymously();
+
   /// Sign out the current user
   Future<void> logout();
 
   /// Get the current authenticated user
   Future<UserProfileModel?> getCurrentUser();
 }
+

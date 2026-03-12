@@ -1,9 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../core/theme/app_mode_provider.dart';
-import '../core/theme/locale_provider.dart';
-import '../features/onboarding/screens/onboarding_screen.dart';
+import '../../../core/theme/app_mode_provider.dart';
+import '../../../core/theme/locale_provider.dart';
+import 'onboarding_screen.dart';
 
 /// ModeSelectionScreen - Premium mode selection with glassmorphism
 /// Allows users to choose between Professional and Kids modes
@@ -91,8 +91,8 @@ class ModeSelectionScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text(
                     isArabic
-                        ? 'حدد تجربتك المثالية للتعلم'
-                        : 'Select your ideal learning experience',
+                        ? 'ابدأ مسيرتك المهنية في عالم التقنية'
+                        : 'Launch your professional tech career',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white.withValues(alpha: 0.6),
@@ -117,26 +117,6 @@ class ModeSelectionScreen extends StatelessWidget {
                         listen: false,
                       );
                       modeProvider.toggleMode(false);
-                      _navigateToOnboarding(context);
-                    },
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Kids Card
-                  SelectionCard(
-                    title: isArabic ? 'أطفال' : 'Kids',
-                    description: isArabic
-                        ? 'تعلم البرمجة من خلال مهام ممتعة'
-                        : 'Learn Coding Through Fun Missions',
-                    icon: Icons.rocket_launch,
-                    glowColor: const Color(0xFFF59E0B), // Orange
-                    onTap: () {
-                      final modeProvider = Provider.of<AppModeProvider>(
-                        context,
-                        listen: false,
-                      );
-                      modeProvider.toggleMode(true);
                       _navigateToOnboarding(context);
                     },
                   ),

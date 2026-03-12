@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/locale_provider.dart';
-import '../../../screens/mode_selection_screen.dart';
+import 'mode_selection_screen.dart';
 
 /// LanguageSelectionScreen - Premium language selection with glassmorphism
 class LanguageSelectionScreen extends StatelessWidget {
