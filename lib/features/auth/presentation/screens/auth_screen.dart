@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/locale_provider.dart';
+import '../../../../shared/widgets/app_background.dart';
+import '../../../../shared/widgets/glass_card.dart';
+import '../../../../shared/widgets/gradient_button.dart';
 import '../../../pro_mode/presentation/screens/pro_home_screen.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -74,19 +77,7 @@ class _AuthScreenState extends State<AuthScreen>
         builder: (context, state) {
           final isLoading = state is AuthLoading;
 
-          return Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: RadialGradient(
-                center: Alignment.center,
-                radius: 1.2,
-                colors: [
-                  Color(0xFF1E293B), // Lighter navy centre
-                  Color(0xFF020617), // Deep dark navy edges
-                ],
-              ),
-            ),
+          return AppBackground(
             child: SafeArea(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -136,31 +127,14 @@ class _AuthScreenState extends State<AuthScreen>
     required Color glowColor,
     required bool isLoading,
   }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(30),
-      child: BackdropFilter(
-        // BackdropFilter is safe here — this card is NOT inside a scrollable list.
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white.withValues(alpha: 0.1),
-                Colors.white.withValues(alpha: 0.05),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.2),
-              width: 1.5,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+    return GlassCard(
+      radius: 30,
+      blurSigma: 20,
+      padding: const EdgeInsets.all(32),
+      borderColor: Colors.white.withValues(alpha: 0.2),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
               // Animated lock icon with neon glow
               _buildGlowIcon(glowColor),
               const SizedBox(height: 24),
@@ -199,12 +173,12 @@ class _AuthScreenState extends State<AuthScreen>
               // ── Pro Mode: Two CTA Buttons (Kids Mode removed for MVP) ────
               _buildFadeIn(
                 delay: 3,
-                child: _buildGlassButton(
-                  text: isArabic
+                child: GradientButton(
+                  label: isArabic
                       ? 'تسجيل الدخول / إنشاء حساب'
                       : 'Login / Sign Up',
-                  primaryColor: primaryColor,
-                  isLoading: false,
+                  colors: [primaryColor.withValues(alpha: 0.8), primaryColor],
+                  isLoading: false, // hand off to next screen
                   onTap: () {
                     Navigator.push(
                       context,
@@ -219,9 +193,9 @@ class _AuthScreenState extends State<AuthScreen>
 
               _buildFadeIn(
                 delay: 4,
-                child: _buildGlassButton(
-                  text: isArabic ? 'المتابعة كضيف' : 'Continue as Guest',
-                  primaryColor: Colors.grey,
+                child: GradientButton(
+                  label: isArabic ? 'المتابعة كضيف' : 'Continue as Guest',
+                  colors: [Colors.grey.withValues(alpha: 0.6), Colors.grey.withValues(alpha: 0.4)],
                   isLoading: isLoading,
                   onTap: () {
                     context.read<AuthCubit>().signInAnonymously();
@@ -230,8 +204,6 @@ class _AuthScreenState extends State<AuthScreen>
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 
@@ -263,60 +235,6 @@ class _AuthScreenState extends State<AuthScreen>
     );
   }
 
-  Widget _buildGlassButton({
-    required String text,
-    required Color primaryColor,
-    required bool isLoading,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: isLoading ? null : onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 18),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              primaryColor.withValues(alpha: 0.3),
-              primaryColor.withValues(alpha: 0.2),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: primaryColor.withValues(alpha: 0.5),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: primaryColor.withValues(alpha: 0.2),
-              blurRadius: 15,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: isLoading
-            ? const Center(
-                child: SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2.5,
-                  ),
-                ),
-              )
-            : Text(
-                text,
-                style: GoogleFonts.cairo(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-      ),
-    );
-  }
+
 
 }

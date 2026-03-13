@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/locale_provider.dart';
+import '../../../../shared/widgets/animated_fade_slide.dart';
+import '../../../../shared/widgets/app_background.dart';
 import '../../data/datasources/dummy_data_source.dart';
 import '../../data/models/work_style_model.dart';
 
@@ -17,19 +19,7 @@ class WorkStylesScreen extends StatelessWidget {
     final workStyles = DummyDataSource.getWorkStyles();
 
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.center,
-            radius: 1.2,
-            colors: [
-              Color(0xFF1E293B),
-              Color(0xFF020617),
-            ],
-          ),
-        ),
+      body: AppBackground(
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
@@ -96,17 +86,7 @@ class WorkStylesScreen extends StatelessWidget {
   }
 
   Widget _buildAnimatedCard({required int delay, required Widget child}) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: Duration(milliseconds: 600 + (delay * 150)),
-      curve: Curves.easeOutCubic,
-      builder: (context, value, _) {
-        return Transform.translate(
-          offset: Offset(0, 30 * (1 - value)),
-          child: Opacity(opacity: value, child: child),
-        );
-      },
-    );
+    return AnimatedFadeSlide(delay: delay, child: child);
   }
 
   /// Performance fix: BackdropFilter removed from list cards.

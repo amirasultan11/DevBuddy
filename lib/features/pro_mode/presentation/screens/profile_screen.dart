@@ -7,6 +7,7 @@ import '../../../../features/auth/presentation/cubit/auth_state.dart';
 import '../../../../features/auth/data/models/user_profile_model.dart';
 
 import '../../../../features/onboarding/screens/language_selection_screen.dart';
+import '../../../../shared/widgets/app_background.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -39,19 +40,7 @@ class ProfileScreen extends StatelessWidget {
           final int badges = user?.badges.length ?? 3;
           final int streak = user?.currentStreak ?? 5;
 
-          return Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: RadialGradient(
-                center: Alignment.center,
-                radius: 1.2,
-                colors: [
-                  Color(0xFF1E293B), // Lighter Navy Center
-                  Color(0xFF020617), // Darkest Navy Edges
-                ],
-              ),
-            ),
+          return AppBackground(
             child: SafeArea(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),

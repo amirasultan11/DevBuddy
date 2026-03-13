@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/locale_provider.dart';
+import '../../../../shared/widgets/app_background.dart';
 import '../cubit/roadmap_cubit.dart';
 import '../cubit/roadmap_state.dart';
 import '../cubit/gamification_cubit.dart';
@@ -41,19 +42,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
     final isArabic = localeProvider.locale.languageCode == 'ar';
 
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.center,
-            radius: 1.2,
-            colors: [
-              Color(0xFF1E293B), // Lighter Navy Center
-              Color(0xFF020617), // Darkest Navy Edges
-            ],
-          ),
-        ),
+      body: AppBackground(
         child: SafeArea(
           child: Column(
             children: [
