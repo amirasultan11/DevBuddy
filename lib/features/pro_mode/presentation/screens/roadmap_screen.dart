@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/locale_provider.dart';
 import '../../../../shared/widgets/app_background.dart';
+import '../../../../shared/widgets/glass_card.dart';
 import '../cubit/roadmap_cubit.dart';
 import '../cubit/roadmap_state.dart';
 import '../cubit/gamification_cubit.dart';
@@ -166,28 +167,12 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
   Widget _buildProgressOverview(Map<String, dynamic> stats, bool isArabic) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.15),
-                  Colors.white.withValues(alpha: 0.08),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
-                width: 1.5,
-              ),
-            ),
-            child: Column(
+      child: GlassCard(
+        blurSigma: 10,
+        radius: 20,
+        padding: const EdgeInsets.all(20),
+        borderColor: Colors.white.withValues(alpha: 0.3),
+        child: Column(
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -244,8 +229,6 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
                 ),
               ],
             ),
-          ),
-        ),
       ),
     );
   }
@@ -255,30 +238,16 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.1),
-                  Colors.white.withValues(alpha: 0.05),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: status == 'locked'
-                    ? Colors.white.withValues(alpha: 0.1)
-                    : Colors.white.withValues(alpha: 0.2),
-                width: 1.5,
-              ),
-            ),
-            child: Column(
-              children: [
+      child: GlassCard(
+        hasBlur: false, // Performance: disabled inside scrollable list
+        blurSigma: 10,
+        radius: 20,
+        padding: EdgeInsets.zero,
+        borderColor: status == 'locked'
+            ? Colors.white.withValues(alpha: 0.1)
+            : Colors.white.withValues(alpha: 0.2),
+        child: Column(
+          children: [
                 // Main Card Content
                 InkWell(
                   onTap: status != 'locked'
@@ -360,8 +329,6 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
                   _buildExpandedContent(step, status, isArabic),
               ],
             ),
-          ),
-        ),
       ),
     );
   }

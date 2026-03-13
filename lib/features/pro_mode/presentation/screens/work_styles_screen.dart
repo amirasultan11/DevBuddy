@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/theme/locale_provider.dart';
 import '../../../../shared/widgets/animated_fade_slide.dart';
 import '../../../../shared/widgets/app_background.dart';
+import '../../../../shared/widgets/glass_card.dart';
 import '../../data/datasources/dummy_data_source.dart';
 import '../../data/models/work_style_model.dart';
 
@@ -95,16 +96,11 @@ class WorkStylesScreen extends StatelessWidget {
   Widget _buildWorkStyleCard(WorkStyleModel workStyle, bool isArabic) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      child: Container(
+      child: GlassCard(
+        hasBlur: false, // Performance fix for list cards
+        radius: 24,
         padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.15),
-            width: 1.5,
-          ),
-        ),
+        borderColor: Colors.white.withValues(alpha: 0.15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
