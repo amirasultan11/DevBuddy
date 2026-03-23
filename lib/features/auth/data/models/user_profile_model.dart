@@ -92,7 +92,7 @@ class UserProfileModel extends Equatable {
 
   /// User's personality type (e.g., "INTJ", "ENFP")
   /// Based on Myers-Briggs Type Indicator
-  final String personalityType;
+  final String? personalityType;
 
   /// Current learning streak in days
   final int currentStreak;
@@ -150,7 +150,7 @@ class UserProfileModel extends Equatable {
     required this.name,
     required this.email,
     this.phoneNumber,
-    required this.personalityType,
+    this.personalityType,
     required this.currentStreak,
     required this.longestStreak,
     required this.totalPoints,

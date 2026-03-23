@@ -38,7 +38,7 @@ class AuthRemoteDataSource {
         uid: user.uid,
         name: name,
         email: email,
-        personalityType: 'Unknown', // Will be set later via personality test
+        personalityType: null, // Will be set later via personality test
         currentStreak: 0,
         longestStreak: 0,
         totalPoints: 0,
@@ -161,7 +161,7 @@ class AuthRemoteDataSource {
         uid: user.uid,
         name: 'Guest Explorer',
         email: 'guest_${user.uid.substring(0, 5)}@devbuddy.app',
-        personalityType: 'Unknown',
+        personalityType: null,
         currentStreak: 0,
         longestStreak: 0,
         totalPoints: 0,
@@ -235,6 +235,18 @@ class AuthRemoteDataSource {
       return UserProfileModel.fromJson(userData);
     } catch (e) {
       throw Exception('Failed to get current user: $e');
+    }
+  }
+
+  /// Update an existing user profile
+  Future<void> updateUserProfile(UserProfileModel userProfile) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userProfile.uid)
+          .update(userProfile.toJson());
+    } catch (e) {
+      throw Exception('Failed to update user profile: $e');
     }
   }
 }

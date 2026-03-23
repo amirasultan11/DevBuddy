@@ -49,21 +49,38 @@ class RoadmapCubit extends Cubit<RoadmapState> {
       final raw = _box.get(trackId);
       if (raw == null) return null;
 
-      // Hive stores the list as a List<dynamic> where each element is a
-      // Map<dynamic, dynamic>. We need to cast each entry to
-      // Map<String, dynamic> before calling fromJson.
-      final list = (raw as List)
-          .map((e) => RoadmapStepModel.fromJson(
-                Map<String, dynamic>.from(e as Map),
-              ))
-          .toList();
+      final list = (raw as List).map((hiveData) {
+        final cleanData = _deepCastMap(hiveData as Map);
+        return RoadmapStepModel.fromJson(cleanData);
+      }).toList();
 
       return list;
     } catch (e) {
-      // Corrupted or incompatible data — fall back to fresh data from source.
-      assert(false, '[RoadmapCubit] Failed to read from Hive, using fallback: $e');
+      // ✅ التعديل هنا: لو حصل إيرور (الداتا القديمة بايظة)، امسحها من Hive!
+      print('🧹 [RoadmapCubit] Corrupted data found in Hive for $trackId. Clearing it...');
+      _box.delete(trackId); 
+      
+      // ونرجع null عشان الدالة اللي ندهت دي (loadRoadmap) تفهم إن مفيش داتا وتروح تجيب الداتا الأصلية تاني
       return null;
     }
+  }
+
+  /// Helper to recursively cast nested dynamic maps/lists from Hive
+  Map<String, dynamic> _deepCastMap(Map<dynamic, dynamic> map) {
+    final resultMap = <String, dynamic>{};
+    map.forEach((key, value) {
+      if (value is Map) {
+        resultMap[key.toString()] = _deepCastMap(value);
+      } else if (value is List) {
+        resultMap[key.toString()] = value.map((item) {
+          if (item is Map) return _deepCastMap(item);
+          return item;
+        }).toList();
+      } else {
+        resultMap[key.toString()] = value;
+      }
+    });
+    return resultMap;
   }
 
   // ── Public API ─────────────────────────────────────────────────────────────

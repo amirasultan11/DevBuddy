@@ -44,7 +44,7 @@ UserProfileModel _$UserProfileModelFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       email: json['email'] as String,
       phoneNumber: json['phoneNumber'] as String?,
-      personalityType: json['personalityType'] as String,
+      personalityType: json['personalityType'] as String?,
       currentStreak: (json['currentStreak'] as num).toInt(),
       longestStreak: (json['longestStreak'] as num).toInt(),
       totalPoints: (json['totalPoints'] as num).toInt(),

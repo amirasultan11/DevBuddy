@@ -96,10 +96,19 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// Update user profile
-  /// This method updates the local state and should be called after
-  /// updating user data in Firestore from other cubits (e.g., GamificationCubit)
-  void updateUserProfile(UserProfileModel user) {
-    emit(Authenticated(user));
+  /// This method updates the local state and saves to Firestore
+  Future<void> updateUserProfile(UserProfileModel user) async {
+    try {
+      // Update local state first for immediate UI reaction
+      emit(Authenticated(user));
+      
+      // Update remote datasource
+      await _repository.updateUserProfile(user);
+    } catch (e) {
+      // If saving fails, we might want to log it or handle it,
+      // but keeping local state updated is usually fine for optimistic UI.
+      print('Error updating user profile: $e');
+    }
   }
 
   /// Get current authenticated user

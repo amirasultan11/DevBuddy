@@ -66,4 +66,13 @@ class AuthRepositoryImpl implements AuthRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<void> updateUserProfile(UserProfileModel userProfile) async {
+    try {
+      await remoteDataSource.updateUserProfile(userProfile);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

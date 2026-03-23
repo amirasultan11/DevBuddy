@@ -7,35 +7,42 @@ import 'package:firebase_core/firebase_core.dart';
 import 'core/theme/app_themes.dart';
 import 'core/theme/app_mode_provider.dart';
 import 'core/theme/locale_provider.dart';
-import 'features/onboarding/screens/splash_screen.dart';
+import 'core/theme/theme_provider.dart'; // ✅ ضفنا الـ ThemeProvider
+import 'features/auth/presentation/screens/auth_wrapper.dart';
 import 'features/pro_mode/presentation/cubit/gamification_cubit.dart';
 import 'features/pro_mode/presentation/cubit/roadmap_cubit.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/auth/data/datasources/auth_remote_datasource.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 
-/// Initialize Hive and open all required boxes
 Future<void> initHive() async {
-  // Initialize Hive
   await Hive.initFlutter();
-
-  // Open boxes used by Cubits
-  // These boxes will be used for persistent storage
-  await Hive.openBox('auth');        // Used by AuthCubit
-  await Hive.openBox('gamification'); // Used by GamificationCubit
-  await Hive.openBox('roadmaps');    // Used by RoadmapCubit for step persistence
-  await Hive.openBox('settings');    // For future use
+  // Open all boxes concurrently — no ordering dependency between them.
+  await Future.wait([
+    Hive.openBox('auth'),
+    Hive.openBox('gamification'),
+    Hive.openBox('roadmaps'),
+    Hive.openBox('settings'),
+  ]);
 }
 
 void main() async {
-  // Ensure Flutter is initialized
+  // MUST be the very first line before any async work or plugins.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase BEFORE running the app
-  await Firebase.initializeApp();
-
-  // Initialize Hive before running the app
-  await initHive();
+  // Initialize Firebase and Hive concurrently to reduce startup time.
+  // Firebase is wrapped in try/catch to gracefully handle GMS SecurityException
+  // on certain Android devices/emulators without crashing the entire app loop.
+  await Future.wait([
+    (() async {
+      try {
+        await Firebase.initializeApp();
+      } catch (e) {
+        debugPrint('[DevBuddy] Firebase init failed: $e');
+      }
+    })(),
+    initHive(),
+  ]);
 
   runApp(const MyApp());
 }
@@ -47,13 +54,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // Cubit Providers
         BlocProvider(create: (_) => GamificationCubit()),
-        // Inject the already-opened 'roadmaps' Hive box so RoadmapCubit
-        // can persist step progress locally without any network calls.
-        BlocProvider(
-          create: (_) => RoadmapCubit(box: Hive.box('roadmaps')),
-        ),
+        BlocProvider(create: (_) => RoadmapCubit(box: Hive.box('roadmaps'))),
         BlocProvider(
           create: (_) => AuthCubit(
             repository: AuthRepositoryImpl(
@@ -61,37 +63,52 @@ class MyApp extends StatelessWidget {
             ),
           )..initialize(),
         ),
-
-        // State Management Providers
-        ChangeNotifierProvider(create: (_) => AppModeProvider()),
-        ChangeNotifierProvider(create: (_) => LocaleProvider()),
       ],
-      child: Consumer2<AppModeProvider, LocaleProvider>(
-        builder: (context, modeProvider, localeProvider, child) {
-          return MaterialApp(
-            title: 'DevBuddy',
-            debugShowCheckedModeBanner: false,
+      // ✅ ضفنا الـ ThemeProvider هنا
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AppModeProvider()),
+          ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ],
+        // ✅ خلينا الـ Consumer يسمع التغييرات
+        child: Consumer3<AppModeProvider, LocaleProvider, ThemeProvider>(
+          builder:
+              (context, modeProvider, localeProvider, themeProvider, child) {
+                return MaterialApp(
+                  title: 'DevBuddy',
+                  debugShowCheckedModeBanner: false,
 
-            // Switch theme based on isKidsMode value
-            theme: modeProvider.isKidsMode
-                ? AppThemes.kidsTheme
-                : AppThemes.professionalTheme,
+                  // ✅ ربط الثيم بوضع الأطفال أو الـ ThemeProvider
+                  themeMode: modeProvider.isKidsMode
+                      ? ThemeMode.light
+                      : themeProvider.themeMode,
+                  theme: AppThemes.kidsTheme, // افتراضي للـ light
+                  darkTheme: AppThemes.professionalTheme,
 
-            // Localization configuration
-            locale: localeProvider.locale,
-            supportedLocales: const [
-              Locale('ar'), // Arabic
-              Locale('en'), // English
-            ],
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
+                  // ✅ ربط اللغة
+                  locale: localeProvider.locale,
+                  supportedLocales: const [Locale('en'), Locale('ar')],
+                  localizationsDelegates: const [
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
 
-            home: const SplashScreen(),
-          );
-        },
+                  // ✅ عشان لو التطبيق عربي يعكس الـ Layout (RTL)
+                  builder: (context, child) {
+                    return Directionality(
+                      textDirection: localeProvider.locale.languageCode == 'ar'
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
+                      child: child!,
+                    );
+                  },
+
+                  home: const AuthWrapper(),
+                );
+              },
+        ),
       ),
     );
   }

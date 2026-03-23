@@ -61,14 +61,9 @@ class GlassBottomNav extends StatelessWidget {
                   index: 1,
                 ),
                 _buildNavItem(
-                  icon: Icons.people_rounded,
-                  label: 'Community',
-                  index: 2,
-                ),
-                _buildNavItem(
                   icon: Icons.person_rounded,
                   label: 'Profile',
-                  index: 3,
+                  index: 2,
                 ),
               ],
             ),

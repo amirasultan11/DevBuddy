@@ -18,5 +18,8 @@ abstract class AuthRepository {
 
   /// Get the current authenticated user
   Future<UserProfileModel?> getCurrentUser();
+
+  /// Update the user profile
+  Future<void> updateUserProfile(UserProfileModel userProfile);
 }
 

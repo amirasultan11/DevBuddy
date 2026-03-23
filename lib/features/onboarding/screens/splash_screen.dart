@@ -1,7 +1,7 @@
-import 'dart:async';
+
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'language_selection_screen.dart';
+
 
 /// SplashScreen - Premium Cyber-Tech animated splash screen
 /// Features pulsing neon glow, metallic logo, and fluid transitions
@@ -39,46 +39,12 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _controller.forward();
-
-    // Navigate with fluid transition after 2.5 seconds
-    Timer(const Duration(milliseconds: 2500), () {
-      if (mounted) {
-        _navigateWithFluidTransition();
-      }
-    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  /// Navigate with combined fade and scale transition
-  void _navigateWithFluidTransition() {
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const LanguageSelectionScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          // Fade transition
-          final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-            CurvedAnimation(parent: animation, curve: Curves.easeInOutQuart),
-          );
-
-          // Scale transition (0.8 to 1.0 for 'entering' effect)
-          final scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-            CurvedAnimation(parent: animation, curve: Curves.easeInOutQuart),
-          );
-
-          return FadeTransition(
-            opacity: fadeAnimation,
-            child: ScaleTransition(scale: scaleAnimation, child: child),
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 600),
-      ),
-    );
   }
 
   @override

@@ -73,6 +73,8 @@ dependencies:
   # AI / Gemini
   # Used by AIRoadmapScreen to generate real, dynamic learning paths.
   google_generative_ai: ^0.4.6
+  screen_protector: ^1.5.1
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:
