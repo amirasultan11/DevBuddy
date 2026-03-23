@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/locale_provider.dart';
 import '../../../../shared/widgets/app_background.dart';
 import '../../../../shared/widgets/glass_card.dart';
-import 'roadmaps_screen.dart'; // مسار الشاشة اللي هيروح لها
+import '../cubit/roadmap_cubit.dart';
+import '../cubit/roadmap_state.dart';
+import 'roadmap_screen.dart' as ai_roadmap;
 
 class AiGeneratorScreen extends StatefulWidget {
   const AiGeneratorScreen({super.key});
@@ -16,32 +19,9 @@ class AiGeneratorScreen extends StatefulWidget {
 class _AiGeneratorScreenState extends State<AiGeneratorScreen> {
   String _selectedLevel = 'Beginner';
   String _targetGoal = '';
-  bool _isLoading = false;
 
   final List<String> _levelsEn = ['Beginner', 'Intermediate', 'Advanced'];
   final List<String> _levelsAr = ['مبتدئ', 'متوسط', 'متقدم'];
-
-  void _generateRoadmap(bool isArabic) {
-    if (_targetGoal.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isArabic ? 'أدخل هدفك أولاً!' : 'Please enter your goal!'), backgroundColor: Colors.redAccent),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-    
-    // Simulate AI generation time
-    Future.delayed(const Duration(seconds: 3), () {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
-      
-      // التوجيه الفعلي للـ Roadmap بدل الـ SnackBar بس
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const RoadmapsScreen()),
-      );
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +29,6 @@ class _AiGeneratorScreenState extends State<AiGeneratorScreen> {
     final levels = isArabic ? _levelsAr : _levelsEn;
 
     return Scaffold(
-      // Transparent so AppBackground's radial gradient renders fully,
-      // consistent with all other pro_mode screens.
       backgroundColor: Colors.transparent,
       body: AppBackground(
         child: SafeArea(
@@ -136,22 +114,77 @@ class _AiGeneratorScreenState extends State<AiGeneratorScreen> {
                         ),
                       ),
                       const SizedBox(height: 48),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : () => _generateRoadmap(isArabic),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigoAccent,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          ),
-                          child: _isLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : Text(
-                                  isArabic ? 'توليد المسار بالذكاء الاصطناعي 🚀' : 'Generate AI Roadmap 🚀',
-                                  style: GoogleFonts.cairo(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+
+                      // ── Generate Button: driven by RoadmapCubit state ──────
+                      BlocConsumer<RoadmapCubit, RoadmapState>(
+                        listener: (context, state) {
+                          if (state is RoadmapError) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(state.message, style: GoogleFonts.cairo(color: Colors.white)),
+                                backgroundColor: Colors.redAccent,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          } else if (state is RoadmapLoaded && state.trackId == 'ai_generated') {
+                            // Navigate to the generated roadmap.
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (_) => ai_roadmap.RoadmapScreen(
+                                  trackId: state.trackId,
+                                  trackTitle: isArabic ? 'مسارك المُولَّد بالذكاء الاصطناعي' : 'Your AI-Generated Roadmap',
                                 ),
-                        ),
+                              ),
+                            );
+                          }
+                        },
+                        builder: (context, state) {
+                          final isGenerating = state is RoadmapLoading;
+                          return SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              // Disabled while the cubit is loading.
+                              onPressed: isGenerating ? null : () {
+                                if (_targetGoal.trim().isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        isArabic ? 'أدخل هدفك أولاً!' : 'Please enter your goal!',
+                                        style: GoogleFonts.cairo(color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.redAccent,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                  return;
+                                }
+                                context.read<RoadmapCubit>().generateAiRoadmap(
+                                  goal: _targetGoal.trim(),
+                                  level: _selectedLevel,
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.indigoAccent,
+                                disabledBackgroundColor: Colors.indigoAccent.withValues(alpha: 0.4),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                              child: isGenerating
+                                  ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2.5,
+                                      ),
+                                    )
+                                  : Text(
+                                      isArabic ? 'توليد المسار بالذكاء الاصطناعي 🚀' : 'Generate AI Roadmap 🚀',
+                                      style: GoogleFonts.cairo(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                                    ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

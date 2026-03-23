@@ -343,4 +343,99 @@ class RoadmapCubit extends Cubit<RoadmapState> {
       assert(false, '[RoadmapCubit] Failed to clear Hive data: $e');
     }
   }
+
+  // ── AI Roadmap Generation ──────────────────────────────────────────────────
+
+  /// Generate a personalised roadmap from a user goal + experience level.
+  ///
+  /// Currently stubs the AI response with a placeholder step list.
+  /// When a real AI backend is available, replace the marked block below.
+  ///
+  /// Emits:
+  ///   [RoadmapLoading]  → while the generation request is in-flight.
+  ///   [RoadmapLoaded]   → on success, with the generated steps.
+  ///   [RoadmapError]    → if the generation fails for any reason.
+  Future<void> generateAiRoadmap({
+    required String goal,
+    required String level,
+  }) async {
+    const generatedTrackId = 'ai_generated';
+
+    try {
+      emit(const RoadmapLoading());
+
+      // ── TODO: Inject real AI API call here ─────────────────────────────────
+      // Replace this block with a call to your AI backend, e.g.:
+      //
+      //   final rawSteps = await AiRoadmapService.generate(
+      //     goal: goal,
+      //     level: level,
+      //   );
+      //   final steps = rawSteps.map(RoadmapStepModel.fromAiResponse).toList();
+      //
+      // For now we simulate a 2-second generation delay and return stubs.
+      await Future.delayed(const Duration(seconds: 2));
+
+      final List<RoadmapStepModel> generatedSteps = [
+        RoadmapStepModel(
+          id: 'ai_step_1',
+          trackId: generatedTrackId,
+          title: 'Foundation: Understanding $goal',
+          description: 'Start with the core concepts required for your goal.',
+          order: 1,
+          isLocked: false,
+          isCompleted: false,
+          type: StepType.lesson,
+          resources: const [],
+          commonMistakes: const [],
+          estimatedHours: 2.0,
+          pointsReward: 100,
+          skillsLearned: ['Fundamentals', goal],
+        ),
+        RoadmapStepModel(
+          id: 'ai_step_2',
+          trackId: generatedTrackId,
+          title: '$level Practice Project',
+          description: 'Build a hands-on project to apply what you learned.',
+          order: 2,
+          isLocked: true,
+          isCompleted: false,
+          type: StepType.project,
+          resources: const [],
+          commonMistakes: const [],
+          estimatedHours: 4.0,
+          pointsReward: 200,
+          skillsLearned: ['Practical Application'],
+        ),
+        RoadmapStepModel(
+          id: 'ai_step_3',
+          trackId: generatedTrackId,
+          title: 'Advanced: Real-world $goal',
+          description: 'Tackle a production-level challenge in your domain.',
+          order: 3,
+          isLocked: true,
+          isCompleted: false,
+          type: StepType.project,
+          resources: const [],
+          commonMistakes: const [],
+          estimatedHours: 6.0,
+          pointsReward: 300,
+          skillsLearned: ['Production Readiness', goal],
+        ),
+      ];
+      // ── End of stub block ──────────────────────────────────────────────────
+
+      if (generatedSteps.isEmpty) {
+        emit(const RoadmapError('AI failed to generate a roadmap. Try again.'));
+        return;
+      }
+
+      // Persist the AI-generated steps to Hive so they survive restarts.
+      _saveToHive(generatedTrackId, generatedSteps);
+
+      emit(RoadmapLoaded(trackId: generatedTrackId, steps: generatedSteps));
+    } catch (e) {
+      emit(RoadmapError('AI generation failed: ${e.toString()}'));
+    }
+  }
 }
