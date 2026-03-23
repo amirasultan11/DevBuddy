@@ -16,6 +16,7 @@ class ModeSelectionScreen extends StatelessWidget {
     final isArabic = localeProvider.locale.languageCode == 'ar';
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
           // Radial Gradient Background

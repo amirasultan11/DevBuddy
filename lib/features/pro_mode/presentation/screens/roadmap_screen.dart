@@ -31,6 +31,8 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
     final isArabic = Provider.of<LocaleProvider>(context).locale.languageCode == 'ar';
 
     return Scaffold(
+      // Transparent so AppBackground's radial gradient renders fully.
+      backgroundColor: Colors.transparent,
       body: AppBackground(
         child: SafeArea(
           child: Column(
@@ -89,19 +91,29 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
                                 color: Colors.white.withValues(alpha: 0.05),
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: isCompleted ? Colors.greenAccent : (isLocked ? Colors.white12 : Colors.indigoAccent),
+                                  // tealAccent for completed (consistent with stage_tasks_screen),
+                                  // indigoAccent for active, near-invisible white for locked.
+                                  color: isCompleted
+                                      ? Colors.tealAccent
+                                      : (isLocked ? Colors.white12 : Colors.indigoAccent),
                                   width: 1.5,
                                 ),
                               ),
                               child: ListTile(
                                 contentPadding: const EdgeInsets.all(16),
                                 leading: CircleAvatar(
-                                  backgroundColor: isCompleted 
-                                      ? Colors.greenAccent.withValues(alpha: 0.2) 
-                                      : (isLocked ? Colors.white12 : Colors.indigoAccent.withValues(alpha: 0.2)),
+                                  backgroundColor: isCompleted
+                                      ? Colors.tealAccent.withValues(alpha: 0.2)
+                                      : (isLocked
+                                          ? Colors.white12
+                                          : Colors.indigoAccent.withValues(alpha: 0.2)),
                                   child: Icon(
-                                    isCompleted ? Icons.check_rounded : (isLocked ? Icons.lock_rounded : Icons.play_arrow_rounded),
-                                    color: isCompleted ? Colors.greenAccent : (isLocked ? Colors.white54 : Colors.indigoAccent),
+                                    isCompleted
+                                        ? Icons.check_rounded
+                                        : (isLocked ? Icons.lock_rounded : Icons.play_arrow_rounded),
+                                    color: isCompleted
+                                        ? Colors.tealAccent
+                                        : (isLocked ? Colors.white54 : Colors.indigoAccent),
                                   ),
                                 ),
                                 title: Text(
@@ -129,12 +141,16 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: isCompleted ? Colors.transparent : Colors.indigoAccent,
                                         elevation: isCompleted ? 0 : 2,
-                                        side: isCompleted ? const BorderSide(color: Colors.greenAccent) : null,
+                                        side: isCompleted
+                                            ? const BorderSide(color: Colors.tealAccent)
+                                            : null,
                                       ),
                                       child: Text(
-                                        isCompleted ? (isArabic ? 'مكتمل' : 'Done') : (isArabic ? 'إكمال' : 'Complete'),
+                                        isCompleted
+                                            ? (isArabic ? 'مكتمل' : 'Done')
+                                            : (isArabic ? 'إكمال' : 'Complete'),
                                         style: GoogleFonts.cairo(
-                                          color: isCompleted ? Colors.greenAccent : Colors.white,
+                                          color: isCompleted ? Colors.tealAccent : Colors.white,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),

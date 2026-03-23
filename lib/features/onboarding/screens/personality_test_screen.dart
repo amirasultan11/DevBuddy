@@ -15,6 +15,8 @@ class PersonalityTestScreen extends StatefulWidget {
 class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
   int _currentQuestionIndex = 0;
   int _eScore = 0, _sScore = 0, _tScore = 0, _jScore = 0;
+  // Tracks the last-tapped option (1 or 2) for visual selected-state feedback.
+  int? _selectedOption;
 
   final List<Map<String, dynamic>> _questions = [
     {
@@ -56,25 +58,34 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
   ];
 
   void _answerQuestion(int optionIndex) {
-    final type = _questions[_currentQuestionIndex]['type'];
-    if (type == 'E/I') optionIndex == 1 ? _eScore++ : _eScore--;
-    if (type == 'S/N') optionIndex == 1 ? _sScore++ : _sScore--;
-    if (type == 'T/F') optionIndex == 1 ? _tScore++ : _tScore--;
-    if (type == 'J/P') optionIndex == 1 ? _jScore++ : _jScore--;
+    // Show the selected highlight briefly, then advance to the next question.
+    setState(() => _selectedOption = optionIndex);
 
-    if (_currentQuestionIndex < _questions.length - 1) {
-      setState(() => _currentQuestionIndex++);
-    } else {
-      String result = '';
-      result += _eScore >= 0 ? 'E' : 'I';
-      result += _sScore >= 0 ? 'S' : 'N';
-      result += _tScore >= 0 ? 'T' : 'F';
-      result += _jScore >= 0 ? 'J' : 'P';
+    Future.delayed(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
+      final type = _questions[_currentQuestionIndex]['type'];
+      if (type == 'E/I') optionIndex == 1 ? _eScore++ : _eScore--;
+      if (type == 'S/N') optionIndex == 1 ? _sScore++ : _sScore--;
+      if (type == 'T/F') optionIndex == 1 ? _tScore++ : _tScore--;
+      if (type == 'J/P') optionIndex == 1 ? _jScore++ : _jScore--;
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => PersonalityResultScreen(personalityType: result)),
-      );
-    }
+      if (_currentQuestionIndex < _questions.length - 1) {
+        setState(() {
+          _currentQuestionIndex++;
+          _selectedOption = null; // reset highlight for new question
+        });
+      } else {
+        String result = '';
+        result += _eScore >= 0 ? 'E' : 'I';
+        result += _sScore >= 0 ? 'S' : 'N';
+        result += _tScore >= 0 ? 'T' : 'F';
+        result += _jScore >= 0 ? 'J' : 'P';
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => PersonalityResultScreen(personalityType: result)),
+        );
+      }
+    });
   }
 
   @override
@@ -84,6 +95,8 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
     final progress = (_currentQuestionIndex + 1) / _questions.length;
 
     return Scaffold(
+      // Transparent so AppBackground's gradient renders fully.
+      backgroundColor: Colors.transparent,
       body: AppBackground(
         child: SafeArea(
           child: Column(
@@ -134,6 +147,7 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
                       isArabic ? currentQ['option1Ar'] : currentQ['option1En'],
                       Icons.analytics_rounded,
                       Colors.blueAccent,
+                      isSelected: _selectedOption == 1,
                       () => _answerQuestion(1),
                     ),
                     const SizedBox(height: 16),
@@ -141,6 +155,7 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
                       isArabic ? currentQ['option2Ar'] : currentQ['option2En'],
                       Icons.lightbulb_rounded,
                       Colors.orangeAccent,
+                      isSelected: _selectedOption == 2,
                       () => _answerQuestion(2),
                     ),
                   ],
@@ -154,30 +169,71 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
     );
   }
 
-  Widget _buildChoiceButton(String text, IconData icon, Color color, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.5),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
-              child: Icon(icon, color: color, size: 28),
+  Widget _buildChoiceButton(
+    String text,
+    IconData icon,
+    Color color,
+    VoidCallback onTap, {
+    bool isSelected = false,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            // Selected: accent fill + solid 2px accent border.
+            // Unselected: subtle translucent fill + dim white border.
+            color: isSelected
+                ? Colors.indigoAccent.withValues(alpha: 0.25)
+                : Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected
+                  ? Colors.indigoAccent
+                  : Colors.white.withValues(alpha: 0.18),
+              width: isSelected ? 2.0 : 1.5,
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(text, style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
-            ),
-          ],
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.indigoAccent.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      spreadRadius: 1,
+                    )
+                  ]
+                : null,
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: isSelected ? 0.2 : 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 28),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  text,
+                  style: GoogleFonts.cairo(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              if (isSelected)
+                const Icon(Icons.check_circle_rounded,
+                    color: Colors.indigoAccent, size: 22),
+            ],
+          ),
         ),
       ),
     );
