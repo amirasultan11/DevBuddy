@@ -20,8 +20,8 @@ class ProfileScreen extends StatelessWidget {
     // تحديد الألوان بناءً على الثيم (فاتح أو غامق)
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final glassBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03);
-    final glassBorder = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05);
+    final glassBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.06);
+    final glassBorder = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.08);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -37,7 +37,8 @@ class ProfileScreen extends StatelessWidget {
         builder: (context, state) {
           final user = (state is Authenticated) ? state.user : null;
           final String name = user?.name ?? (isArabic ? 'مطور' : 'Developer');
-          final String email = user?.email ?? 'dev@example.com';
+          // Empty string fallback — avoids displaying a fake email to the user.
+          final String email = user?.email ?? '';
           final String initials = name.isNotEmpty ? name[0].toUpperCase() : 'D';
 
           return AppBackground(

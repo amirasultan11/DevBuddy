@@ -1,4 +1,5 @@
 import 'package:dev_buddy/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:dev_buddy/features/auth/presentation/cubit/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -67,6 +68,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final isArabic = Provider.of<LocaleProvider>(context).locale.languageCode == 'ar';
 
     return Scaffold(
+      // Transparent so AppBackground's radial gradient renders fully.
+      backgroundColor: Colors.transparent,
       body: AppBackground(
         child: SafeArea(
           child: Column(
@@ -77,10 +80,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   padding: const EdgeInsets.all(24),
                   physics: const BouncingScrollPhysics(),
                   children: [
-                    const CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.white12,
-                      child: Icon(Icons.person, size: 50, color: Colors.white70),
+                    // Real initials avatar — matches the ProfileScreen avatar style.
+                    BlocBuilder<AuthCubit, dynamic>(
+                      builder: (context, state) {
+                        final name = (state is Authenticated) ? state.user.name : '';
+                        final initials = name.isNotEmpty ? name[0].toUpperCase() : '?';
+                        return Center(
+                          child: Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: const LinearGradient(
+                                colors: [Colors.indigoAccent, Colors.purpleAccent],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.indigoAccent.withValues(alpha: 0.4),
+                                  blurRadius: 20,
+                                  spreadRadius: 5,
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Text(
+                                initials,
+                                style: GoogleFonts.cairo(
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 32),
                     
